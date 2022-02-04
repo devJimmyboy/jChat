@@ -1,3 +1,4 @@
+/// <reference types="jQuery"/>
 ;(function ($) {
   // Thanks to BrunoLM (https://stackoverflow.com/a/3855394)
   $.QueryString = (function (paramsArray) {
@@ -304,7 +305,7 @@ Chat = {
             console.log(paint)
             var color = decimalColorToRGBA(paint.color)
 
-            var shadow = paint.drop_shadow
+            var shadows = paint.drop_shadows || [paint.drop_shadow]
             var userPaint = {
               css: {
                 background:
@@ -312,16 +313,18 @@ Chat = {
                     ? `${paint.function}(${paint.image_url})`
                     : `${paint.repeat ? "repeating-" : ""}${paint.function}(${
                         paint.function.startsWith("linear") ? `${paint.angle}deg` : paint.shape
-                      },${
-                        paint.stops?.map((stop) => `${decimalColorToRGBA(stop.color)} ${stop.at * 100}%`).join(",") ||
-                        color
-                      })`,
+                      },${paint.stops.map((stop) => `${decimalColorToRGBA(stop.color)} ${stop.at * 100}%`).join(",")})`,
                 "background-clip": "text",
-                filter: shadow
-                  ? `drop-shadow(${shadow.x_offset}px ${shadow.y_offset}px ${shadow.radius}px ${decimalColorToRGBA(
-                      shadow.color
-                    )})`
-                  : null,
+                filter: shadows
+                  ? shadows
+                      .map(
+                        (shadow) =>
+                          `drop-shadow(${shadow.x_offset}px ${shadow.y_offset}px ${
+                            shadow.radius
+                          }px ${decimalColorToRGBA(shadow.color)})`
+                      )
+                      .join(" ")
+                  : "",
               },
               description: paint.name,
               id: paint.id,
@@ -428,33 +431,36 @@ Chat = {
       var $username = $("<span></span>")
       $username.addClass("nick")
       if (Chat.info.userPaints[nick] && Chat.info.userPaints[nick].length > 0) {
-        $username.css(Chat.info.userPaints[nick][0].css)
+        // var $paint = $("<span>")
+        //   .addClass("paint")
+        //   .html(info["display-name"] ? info["display-name"] : nick)
+        // $userInfo.append($paint)
+        $username.addClass("paint").css(Chat.info.userPaints[nick][0].css)
         var color = "transparent"
+      } else if (typeof info.color === "string") {
+        if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
+        else var color = info.color
       } else {
-        if (typeof info.color === "string") {
-          if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
-          else var color = info.color
-        } else {
-          const twitchColors = [
-            "#FF0000",
-            "#0000FF",
-            "#008000",
-            "#B22222",
-            "#FF7F50",
-            "#9ACD32",
-            "#FF4500",
-            "#2E8B57",
-            "#DAA520",
-            "#D2691E",
-            "#5F9EA0",
-            "#1E90FF",
-            "#FF69B4",
-            "#8A2BE2",
-            "#00FF7F",
-          ]
-          var color = twitchColors[nick.charCodeAt(0) % 15]
-        }
+        const twitchColors = [
+          "#FF0000",
+          "#0000FF",
+          "#008000",
+          "#B22222",
+          "#FF7F50",
+          "#9ACD32",
+          "#FF4500",
+          "#2E8B57",
+          "#DAA520",
+          "#D2691E",
+          "#5F9EA0",
+          "#1E90FF",
+          "#FF69B4",
+          "#8A2BE2",
+          "#00FF7F",
+        ]
+        var color = twitchColors[nick.charCodeAt(0) % 15]
       }
+
       $username.css("color", color)
       $username.html(info["display-name"] ? info["display-name"] : nick)
       $userInfo.append($username)

@@ -29,5 +29,6 @@ function escapeHtml(message) {
 }
 
 function TwitchAPI(url) {
-  return $.getJSON(url + (url.search(/\?/) > -1 ? "&" : "?") + "client_id=" + client_id)
+  const clientId = "client_id" in $.QueryString ? $.QueryString.client_id : client_id
+  return $.getJSON(url + (url.search(/\?/) > -1 ? "&" : "?") + "client_id=" + clientId)
 }

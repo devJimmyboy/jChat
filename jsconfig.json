@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "jsx": "preserve",
+    "typeRoots": ["~/AppData/Roaming/nvm/v16.13.1/node_modules/@types/**/*"]
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
+}
