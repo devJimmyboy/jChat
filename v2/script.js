@@ -1,4 +1,5 @@
 /// <reference types="jQuery"/>
+
 ;(function ($) {
   // Thanks to BrunoLM (https://stackoverflow.com/a/3855394)
   $.QueryString = (function (paramsArray) {
@@ -13,8 +14,60 @@
     }
 
     return params
-  })(window.location.search.substr(1).split("&"))
+  })(window.location.search.substring(1).split("&"))
 })(jQuery)
+
+function decimalColorToRGBA(num) {
+  const r = (num >>> 24) & 0xff
+  const g = (num >>> 16) & 0xff
+  const b = (num >>> 8) & 0xff
+  const a = num & 0xff
+
+  return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`
+}
+
+function escapeRegExp(string) {
+  // Thanks to coolaj86 and Darren Cook (https://stackoverflow.com/a/6969486)
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function escapeHtml(message) {
+  return message
+    .replace(/&/g, "&amp;")
+    .replace(/(<)(?!3)/g, "&lt;")
+    .replace(/(>)(?!\()/g, "&gt;")
+}
+
+/*function TwitchAPI(url) {
+    return $.getJSON(url + (url.search(/\?/) > -1 ? '&' : '?') + 'client_id=' + client_id);
+}*/
+
+/*function TwitchAPI(url) {
+    return $.ajax({
+        beforeSend: function(request) {
+            request.setRequestHeader("Authorization", "Basic " + btoa(credentials));
+        },
+        dataType: "json",
+        url: "https://api.giambaj.it" + url
+    });
+}*/
+
+function TwitchAPI(url) {
+  if (!client_id && "client_id" in $.QueryString) {
+    client_id = $.QueryString.client_id || ""
+  } else if (!client_id) throw new Error("Missing client_id in QueryString")
+  if (!client_secret && "client_secret" in $.QueryString) {
+    client_secret = $.QueryString.client_secret || ""
+  } else if (!client_secret) throw new Error("Missing client_secret in QueryString")
+  return $.ajax({
+    beforeSend: function (request) {
+      request.setRequestHeader("Client-Id", client_id)
+      request.setRequestHeader("Authorization", `Bearer ${client_secret}`)
+    },
+    dataType: "json",
+    url: "https://api.twitch.tv/helix" + url,
+  })
+}
 
 Chat = {
   info: {
@@ -107,37 +160,199 @@ Chat = {
   },
 
   load: function (callback) {
-    TwitchAPI("https://api.twitch.tv/v5/users?login=" + Chat.info.channel).done(function (res) {
-      Chat.info.channelID = res.users[0]._id
+    TwitchAPI("/users?login=" + Chat.info.channel).done(function (res) {
+      //res = res['Message'];
+      res = res.data[0]
+      Chat.info.channelID = res.id
       Chat.loadEmotes(Chat.info.channelID)
 
       // Load CSS
-      let size = sizes[Chat.info.size - 1]
-      let font = fonts[Chat.info.font]
-
-      appendCSS("size", size)
-      appendCSS("font", font)
-
-      if (Chat.info.stroke && Chat.info.stroke > 0) {
-        let stroke = strokes[Chat.info.stroke - 1]
-        appendCSS("stroke", stroke)
+      switch (Chat.info.size) {
+        case 1:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/size_small.css",
+          }).appendTo("head")
+          break
+        case 2:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/size_medium.css",
+          }).appendTo("head")
+          break
+        default:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/size_large.css",
+          }).appendTo("head")
+          break
       }
-      if (Chat.info.shadow && Chat.info.shadow > 0) {
-        let shadow = shadows[Chat.info.shadow - 1]
-        appendCSS("shadow", shadow)
+
+      switch (Chat.info.font) {
+        case 1:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_SegoeUI.css",
+          }).appendTo("head")
+          break
+        case 2:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_Roboto.css",
+          }).appendTo("head")
+          break
+        case 3:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_Lato.css",
+          }).appendTo("head")
+          break
+        case 4:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_NotoSans.css",
+          }).appendTo("head")
+          break
+        case 5:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_SourceCodePro.css",
+          }).appendTo("head")
+          break
+        case 6:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_Impact.css",
+          }).appendTo("head")
+          break
+        case 7:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_Comfortaa.css",
+          }).appendTo("head")
+          break
+        case 8:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_DancingScript.css",
+          }).appendTo("head")
+          break
+        case 9:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_IndieFlower.css",
+          }).appendTo("head")
+          break
+        case 10:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_PressStart2P.css",
+          }).appendTo("head")
+          break
+        case 11:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_Wallpoet.css",
+          }).appendTo("head")
+          break
+        default:
+          $("<link/>", {
+            rel: "stylesheet",
+            type: "text/css",
+            href: "styles/font_BalooTammudu.css",
+          }).appendTo("head")
+          break
       }
+
+      if (Chat.info.stroke) {
+        switch (Chat.info.stroke) {
+          case 1:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/stroke_thin.css",
+            }).appendTo("head")
+            break
+          case 2:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/stroke_medium.css",
+            }).appendTo("head")
+            break
+          case 3:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/stroke_thick.css",
+            }).appendTo("head")
+            break
+          case 4:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/stroke_thicker.css",
+            }).appendTo("head")
+            break
+        }
+      }
+
+      if (Chat.info.shadow) {
+        switch (Chat.info.shadow) {
+          case 1:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/shadow_small.css",
+            }).appendTo("head")
+            break
+          case 2:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/shadow_medium.css",
+            }).appendTo("head")
+            break
+          case 3:
+            $("<link/>", {
+              rel: "stylesheet",
+              type: "text/css",
+              href: "styles/shadow_large.css",
+            }).appendTo("head")
+            break
+        }
+      }
+
       if (Chat.info.smallCaps) {
-        appendCSS("variant", "SmallCaps")
+        $("<link/>", {
+          rel: "stylesheet",
+          type: "text/css",
+          href: "styles/variant_SmallCaps.css",
+        }).appendTo("head")
       }
 
       // Load badges
-      TwitchAPI("https://badges.twitch.tv/v1/badges/global/display").done(function (global) {
+      $.getJSON("https://badges.twitch.tv/v1/badges/global/display").done(function (global) {
         Object.entries(global.badge_sets).forEach((badge) => {
           Object.entries(badge[1].versions).forEach((v) => {
             Chat.info.badges[badge[0] + ":" + v[0]] = v[1].image_url_4x
           })
         })
-        TwitchAPI(
+        $.getJSON(
           "https://badges.twitch.tv/v1/badges/channels/" + encodeURIComponent(Chat.info.channelID) + "/display"
         ).done(function (channel) {
           Object.entries(channel.badge_sets).forEach((badge) => {
@@ -185,7 +400,7 @@ Chat = {
             Chat.info.seventvCosmetics = []
           })
 
-        $.getJSON("https://api.chatterino.com/badges")
+        $.getJSON("https://peaceful-eyrie-40908.herokuapp.com/https://api.chatterino.com/badges")
           .done(function (res) {
             Chat.info.chatterinoBadges = res.badges
           })
@@ -195,8 +410,10 @@ Chat = {
       }
 
       // Load cheers images
-      TwitchAPI("https://api.twitch.tv/v5/bits/actions?channel_id=" + Chat.info.channelId).done(function (res) {
-        res.actions.forEach((action) => {
+      TwitchAPI("/bits/cheermotes?broadcaster_id=" + Chat.info.channelID).done(function (res) {
+        //res = res['Message']
+        res = res.data
+        res.forEach((action) => {
           Chat.info.cheers[action.prefix] = {}
           action.tiers.forEach((tier) => {
             Chat.info.cheers[action.prefix][tier.min_bits] = {
