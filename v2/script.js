@@ -54,10 +54,10 @@ function escapeHtml(message) {
 
 function TwitchAPI(url) {
   if (!client_id && "client_id" in $.QueryString) {
-    client_id = $.QueryString.client_id || ""
+    var client_id = $.QueryString.client_id || ""
   } else if (!client_id) throw new Error("Missing client_id in QueryString")
   if (!client_secret && "client_secret" in $.QueryString) {
-    client_secret = $.QueryString.client_secret || ""
+    var client_secret = $.QueryString.client_secret || ""
   } else if (!client_secret) throw new Error("Missing client_secret in QueryString")
   return $.ajax({
     beforeSend: function (request) {
