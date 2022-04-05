@@ -515,7 +515,7 @@ Chat = {
         paint.users.forEach((user) => {
           if (user === nick) {
             console.log(paint)
-            var color = decimalColorToRGBA(paint.color)
+            var color = paint.color ? decimalColorToRGBA(paint.color) : user.color
 
             var shadows = paint.drop_shadows || [paint.drop_shadow]
             var userPaint = {
@@ -527,6 +527,7 @@ Chat = {
                         .map((stop) => `${decimalColorToRGBA(stop.color)} ${stop.at * 100}%`)
                         .join(',')})`,
                 'background-clip': 'text',
+                color,
                 filter: shadows ? shadows.map((shadow) => `drop-shadow(${shadow.x_offset}px ${shadow.y_offset}px ${shadow.radius}px ${decimalColorToRGBA(shadow.color)})`).join(' ') : '',
               },
               description: paint.name,
@@ -624,20 +625,25 @@ Chat = {
       // Writing username
       var $username = $('<span></span>')
       $username.addClass('nick')
-      if (Chat.info.userPaints[nick] && Chat.info.userPaints[nick].length > 0) {
-        // var $paint = $("<span>")
-        //   .addClass("paint")
-        //   .html(info["display-name"] ? info["display-name"] : nick)
-        // $userInfo.append($paint)
-        $username.addClass('paint').css(Chat.info.userPaints[nick][0].css)
-        if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
-        else var color = info.color
-      } else if (typeof info.color === 'string') {
+
+      if (typeof info.color === 'string') {
         if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
         else var color = info.color
       } else {
         const twitchColors = ['#FF0000', '#0000FF', '#008000', '#B22222', '#FF7F50', '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E', '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F']
         var color = twitchColors[nick.charCodeAt(0) % 15]
+      }
+
+      if (Chat.info.userPaints[nick] && Chat.info.userPaints[nick].length > 0) {
+        // var $paint = $("<span>")
+        //   .addClass("paint")
+        //   .html(info["display-name"] ? info["display-name"] : nick)
+        // $userInfo.append($paint)
+        if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
+        else var color = info.color
+        var css = Chat.info.userPaints[nick][0].css
+        css.background = css.background + `, ${color}`
+        $username.addClass('paint').css(css)
       }
 
       $username.css('color', color)
@@ -834,6 +840,6 @@ Chat = {
   },
 }
 
-$(document).ready(function () {
+$(function () {
   Chat.connect($.QueryString.channel ? $.QueryString.channel.toLowerCase() : 'giambaj')
 })
