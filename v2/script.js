@@ -514,7 +514,7 @@ Chat = {
       Chat.info.seventvCosmetics.forEach((paint) => {
         paint.users.forEach((user) => {
           if (user === nick) {
-            console.log(paint)
+            // console.log(paint)
             var color = paint.color ? decimalColorToRGBA(paint.color) : user.color
 
             var shadows = paint.drop_shadows || [paint.drop_shadow]
@@ -533,7 +533,7 @@ Chat = {
               description: paint.name,
               id: paint.id,
             }
-            console.log(userPaint.css)
+            // console.log(userPaint.css)
             if (!Chat.info.userPaints[nick].includes(userPaint)) Chat.info.userPaints[nick].push(userPaint)
           }
         })
@@ -641,7 +641,8 @@ Chat = {
         // $userInfo.append($paint)
         if (tinycolor(info.color).getBrightness() <= 50) var color = tinycolor(info.color).lighten(30)
         else var color = info.color
-        var css = Chat.info.userPaints[nick][0].css
+        var css = Object.assign({}, Chat.info.userPaints[nick][0].css)
+        // console.log(css)
         css.background = css.background + `, ${color}`
         $username.addClass('paint').css(css)
       }

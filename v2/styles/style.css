@@ -27,7 +27,6 @@ body {
   display: inline-block;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent;
-  background-color: currentColor;
   text-shadow: none;
   /* -webkit-text-stroke: transparent; */
   /* position: absolute; */
