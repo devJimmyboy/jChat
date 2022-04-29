@@ -53,19 +53,27 @@ function escapeHtml(message) {
 }*/
 
 function TwitchAPI(url) {
+  var client_id, client_secret
   if (!client_id && 'client_id' in $.QueryString) {
-    var client_id = $.QueryString.client_id || ''
-  } else if (!client_id) throw new Error('Missing client_id in QueryString')
+    client_id = $.QueryString.client_id || ''
+  } else if (!client_id) console.log('Missing client_id in QueryString, fetching from third-party source...')
   if (!client_secret && 'client_secret' in $.QueryString) {
-    var client_secret = $.QueryString.client_secret || ''
-  } else if (!client_secret) throw new Error('Missing client_secret in QueryString')
+    client_secret = $.QueryString.client_secret || ''
+  } else if (!client_secret) console.log('Missing client_secret in QueryString, fetching from third-party source...')
   return $.ajax({
-    beforeSend: function (request) {
-      request.setRequestHeader('Client-Id', client_id)
-      request.setRequestHeader('Authorization', `Bearer ${client_secret}`)
-    },
     dataType: 'json',
-    url: 'https://api.twitch.tv/helix' + url,
+    url: 'https://api.jimmyboy.dev/api/jChat/token',
+  }).then((token) => {
+    client_id = client_id || token.client_id
+    client_secret = client_secret || token.client_secret
+    return $.ajax({
+      beforeSend: function (request) {
+        request.setRequestHeader('Client-Id', client_id)
+        request.setRequestHeader('Authorization', `Bearer ${client_secret}`)
+      },
+      dataType: 'json',
+      url: 'https://api.twitch.tv/helix' + url,
+    })
   })
 }
 
